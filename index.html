@@ -1,0 +1,1021 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Meridian Hire</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@500;600&display=swap">
+<style>
+/* Layout: fixed left rail (nav + role lens) beside a working canvas; rail collapses to a top bar under 860px. */
+:root{
+  --bg:#F3F5F7; --surface:#FFFFFF; --surface-2:#E9EDF1; --ink:#16202A; --muted:#5A6675; --line:#D8DEE5;
+  --accent:#0E6577; --accent-ink:#FFFFFF; --accent-soft:#DDEEF1;
+  --good:#1D7445; --good-soft:#DFF1E6; --warn:#9A5B00; --warn-soft:#FBEBD2; --bad:#AE2A21; --bad-soft:#F8E0DD;
+  --shadow:0 1px 2px rgba(22,32,42,.06),0 8px 24px rgba(22,32,42,.08);
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-head:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:8px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1419; --surface:#161C23; --surface-2:#1F2730; --ink:#E4E9EF; --muted:#98A4B3; --line:#2B3541;
+  --accent:#53B8C9; --accent-ink:#0B1A1E; --accent-soft:#16343B;
+  --good:#5CC48A; --good-soft:#17321F; --warn:#E3A14B; --warn-soft:#3A2A12; --bad:#F07C70; --bad-soft:#3D1A17;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1419; --surface:#161C23; --surface-2:#1F2730; --ink:#E4E9EF; --muted:#98A4B3; --line:#2B3541;
+  --accent:#53B8C9; --accent-ink:#0B1A1E; --accent-soft:#16343B;
+  --good:#5CC48A; --good-soft:#17321F; --warn:#E3A14B; --warn-soft:#3A2A12; --bad:#F07C70; --bad-soft:#3D1A17;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--f-head);font-weight:600;text-wrap:balance;margin:0;letter-spacing:.005em}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* shell */
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+.rail{background:var(--surface);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px}
+.brand-mark{width:30px;height:30px;border-radius:7px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-family:var(--f-head);font-weight:600;font-size:15px}
+.brand b{font-family:var(--f-head);font-size:17px;display:block;line-height:1.1}
+.brand small{color:var(--muted);font-size:11.5px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;color:var(--ink);text-decoration:none;font-weight:500}
+.nav a:hover{background:var(--surface-2)}
+.nav a[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.nav svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7}
+.rail-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 6px 6px;font-weight:600}
+.lens{display:flex;flex-direction:column;gap:2px}
+.lens button{all:unset;cursor:pointer;padding:7px 10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;font-weight:500}
+.lens button:hover{background:var(--surface-2)}
+.lens button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.lens button:focus-visible{outline:2px solid var(--accent)}
+.rail-foot{margin-top:auto;font-size:12px;color:var(--muted);padding:0 6px;display:flex;flex-direction:column;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--muted);flex:none}
+.dot.ok{background:var(--good)} .dot.wait{background:var(--warn)}
+
+main{min-width:0;padding-block:24px 48px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.page-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;margin-bottom:18px}
+.page-head h1{font-size:26px}
+.page-head p{margin:4px 0 0;color:var(--muted);max-width:68ch}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.page-head .toolbar{justify-content:flex-end}
+.banner{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:var(--r);background:var(--surface-2);border:1px solid var(--line);margin-bottom:16px;font-size:13px}
+.banner.warn{background:var(--warn-soft);border-color:transparent;color:var(--ink)}
+.banner b{font-weight:600}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);padding:7px 12px;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--bad)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.sm{padding:4px 9px;font-size:12.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.input,select.input,textarea.input{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:7px 10px;min-width:0;width:100%}
+textarea.input{resize:vertical;min-height:70px}
+.search{position:relative;min-width:200px;flex:1 1 220px;max-width:340px}
+.search input{padding-left:30px}
+.search svg{position:absolute;left:9px;top:50%;translate:0 -50%;width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:2}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:500;color:var(--muted);min-width:0}
+label.f > span{display:flex;justify-content:space-between;gap:8px}
+.grid-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+.grid-form .wide{grid-column:1/-1}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.check input{margin-top:3px}
+
+/* chips */
+.chip{display:inline-flex;align-items:center;gap:5px;padding:1px 8px;border-radius:999px;font-size:12px;background:var(--surface-2);color:var(--ink);white-space:nowrap;font-weight:500}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.accent{background:var(--accent-soft);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.skill{font-size:11.5px;padding:0 7px;border:1px solid var(--line);border-radius:4px;color:var(--muted);background:transparent}
+
+/* board */
+.board-wrap{overflow-x:auto;padding-bottom:8px;margin-inline:-4px}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(232px,1fr);gap:12px;padding:0 4px;min-width:min-content}
+.col{background:var(--surface-2);border-radius:var(--r);padding:10px;display:flex;flex-direction:column;gap:8px;min-height:180px}
+.col-head{display:flex;justify-content:space-between;align-items:baseline;padding:0 2px 4px;gap:6px}
+.col-head h3{font-size:14px}
+.col-head .num{color:var(--muted);font-size:12.5px}
+.col.closed{background:transparent;border:1px dashed var(--line)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:10px 11px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;width:100%}
+.card:hover{border-color:var(--accent)}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .name{font-weight:600}
+.card .job{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card .meta{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.card .age{font-size:11.5px;color:var(--muted)}
+.empty-col{font-size:12.5px;color:var(--muted);padding:8px 4px}
+
+/* tables */
+.table-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:var(--surface-2)}
+td.num,th.num{text-align:right}
+.cell-main{font-weight:600}
+.cell-sub{font-size:12.5px;color:var(--muted)}
+
+/* pipeline mini bar */
+.mini{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--surface-2);min-width:120px}
+.mini span{display:block;height:100%}
+
+/* dashboard */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.kpi .label{font-size:12px;color:var(--muted);font-weight:500}
+.kpi .value{font-family:var(--f-head);font-size:30px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi .value small{font-size:15px;color:var(--muted);font-weight:500}
+.kpi .foot{font-size:12px;color:var(--muted)}
+.kpi.alert .value{color:var(--bad)}
+.panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;min-width:0;display:flex;flex-direction:column;gap:12px}
+.panel h2{font-size:16px}
+.panel .sub{font-size:12.5px;color:var(--muted);margin-top:2px}
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar-row{display:grid;grid-template-columns:128px minmax(0,1fr) 36px;gap:10px;align-items:center;font-size:13px}
+.bar-track{height:14px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;background:var(--accent);border-radius:3px}
+.bar-row .num{text-align:right}
+
+/* drawer & modal */
+.scrim{position:fixed;inset:0;background:rgba(10,16,22,.42);z-index:40;display:flex;justify-content:flex-end}
+.drawer{background:var(--bg);width:min(620px,100%);height:100%;overflow:auto;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.drawer-head{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);padding:16px max(20px,env(safe-area-inset-right,0px)) 14px 20px;display:flex;justify-content:space-between;gap:12px;z-index:2}
+.drawer-head h2{font-size:21px}
+.drawer-body{padding:18px max(20px,env(safe-area-inset-right,0px)) 40px 20px;display:flex;flex-direction:column;gap:16px}
+.modal-scrim{position:fixed;inset:0;background:rgba(10,16,22,.42);z-index:50;display:grid;place-items:center;padding:16px}
+.modal{background:var(--surface);border-radius:10px;width:min(640px,100%);max-height:calc(100% - 16px);overflow:auto;box-shadow:var(--shadow)}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-head h2{font-size:19px}
+.modal-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;position:sticky;bottom:0;background:var(--surface)}
+.section{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.section h3{font-size:15px}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 14px}
+.kv div{min-width:0}
+.kv dt{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.kv dd{margin:2px 0 0;font-weight:500;overflow-wrap:anywhere}
+.stepper{display:flex;gap:3px}
+.stepper span{flex:1;height:6px;border-radius:2px;background:var(--surface-2)}
+.stepper span.done{background:var(--accent)}
+.stepper span.now{background:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.stepper.bad span.done,.stepper.bad span.now{background:var(--muted)}
+.app-block{border:1px solid var(--line);border-radius:7px;padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.app-block.focus{border-color:var(--accent)}
+.app-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.app-actions{display:flex;flex-wrap:wrap;gap:6px}
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.timeline li{display:grid;grid-template-columns:118px minmax(0,1fr);gap:8px}
+.timeline time{color:var(--muted);font-family:var(--f-mono);font-size:11.5px}
+.note{border-left:3px solid var(--line);padding:2px 0 2px 10px;display:flex;flex-direction:column;gap:2px}
+.note p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.note small{color:var(--muted);font-size:12px}
+.inline-form{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:6px;background:var(--surface);border:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.row > *{flex:1 1 160px}
+.dup{background:var(--warn-soft);border-radius:6px;padding:10px 12px;font-size:13px;display:flex;flex-direction:column;gap:6px}
+.dup b{font-weight:600}
+.toast{position:fixed;bottom:max(18px,env(safe-area-inset-bottom,0px));left:50%;translate:-50% 0;background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:6px;z-index:60;font-weight:500;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+
+/* brief */
+.brief{display:flex;flex-direction:column;gap:18px;max-width:1040px}
+.brief .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.step-head{display:flex;gap:14px;align-items:baseline}
+.step-letter{font-family:var(--f-head);font-size:28px;font-weight:600;color:var(--accent);line-height:1;min-width:24px}
+.step-head h2{font-size:19px}
+.step-head p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.brief blockquote{margin:0;padding:10px 14px;border-left:3px solid var(--accent);background:var(--surface-2);border-radius:0 6px 6px 0;max-width:80ch}
+.brief p{margin:0;max-width:80ch}
+.brief table td,.brief table th{font-size:13px}
+.story{display:grid;grid-template-columns:64px minmax(0,1fr) 92px;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.story:last-child{border-bottom:0}
+.story .id{font-family:var(--f-mono);font-size:12.5px;color:var(--accent);font-weight:500}
+.story .as{font-weight:600}
+.story .done{font-size:13px;color:var(--muted);margin-top:3px}
+.moscow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.moscow > div{border:1px solid var(--line);border-radius:7px;padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.moscow h3{font-size:14px}
+.moscow ul{margin:0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:3px}
+.loop{font-family:var(--f-head);font-size:20px;font-weight:500;padding:14px 18px;background:var(--accent-soft);color:var(--ink);border-radius:var(--r)}
+
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty h2{font-size:18px}
+.empty p{margin:0;color:var(--muted);max-width:52ch}
+
+@media (max-width:1100px){.panels{grid-template-columns:minmax(0,1fr)}.moscow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{position:sticky;top:env(safe-area-inset-top,0px);height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-right:0;border-bottom:1px solid var(--line);z-index:30}
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--surface)}
+  .brand small,.rail-label,.rail-foot{display:none}
+  .nav{flex-direction:row;overflow-x:auto;width:100%;order:3;gap:4px}
+  .nav a{padding:6px 10px;white-space:nowrap}
+  .lens{flex-direction:row;margin-left:auto}
+  .lens button{padding:5px 8px;font-size:12.5px}
+  .lens .lens-full{display:none}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 40px}
+  .grid-form,.kv{grid-template-columns:minmax(0,1fr)}
+  .story{grid-template-columns:minmax(0,1fr)}
+  .moscow{grid-template-columns:minmax(0,1fr)}
+  .bar-row{grid-template-columns:100px minmax(0,1fr) 32px}
+}
+@media (prefers-reduced-motion:no-preference){.drawer{animation:slide .18s ease-out}@keyframes slide{from{translate:24px 0;opacity:.6}}}
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">M</div><div><b>Meridian Hire</b><small>Talent Acquisition · Pune · Bangalore · Goa</small></div></div>
+    <nav class="nav" aria-label="Main">
+      <a href="#board" data-view="board"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg>Pipeline</a>
+      <a href="#jobs" data-view="jobs"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>Requisitions</a>
+      <a href="#candidates" data-view="candidates"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21 20c0-2.6-1.6-4.8-4-5.6"/></svg>Candidates</a>
+      <a href="#dashboard" data-view="dashboard"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Dashboard</a>
+      <a href="#brief" data-view="brief"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>P.R.O.T.O.</a>
+    </nav>
+    <div>
+      <div class="rail-label">Viewing as</div>
+      <div class="lens" id="lens" role="group" aria-label="Role view">
+        <button data-role="recruiter">Recruiter</button>
+        <button data-role="hm"><span>Hiring<span class="lens-full"> manager</span></span></button>
+        <button data-role="head">TA Head</button>
+      </div>
+    </div>
+    <div class="rail-foot">
+      <div style="display:flex;gap:7px;align-items:center"><span class="dot" id="sync-dot"></span><span id="sync-text">Connecting…</span></div>
+      <div id="me-text"></div>
+    </div>
+  </aside>
+  <main id="main" aria-live="polite"></main>
+</div>
+<div id="layer"></div>
+
+<script>
+/* ============================== constants ============================== */
+const STAGES=["Applied","Screened","Internal Interview","Client Round","Offered","BGV","Joined"];
+const TERMINAL=["Rejected","Dropped Out"];
+const HM_STAGES=STAGES.slice(2);
+const SOURCES=["Naukri","LinkedIn","Referral","Consultancy","Direct"];
+const CONSULTANCIES=["TalentBridge Search","Apex Staffing","Kaveri HR Partners"];
+const REJECT_CODES=["Skills mismatch","Experience below band","CTC expectation above range","Notice period too long","Failed internal interview","Client rejected","Communication","Position closed or on hold"];
+const DROP_CODES=["Accepted another offer","Counter-offer from current employer","Relocation not possible","Not reachable","Personal reasons","BGV discrepancy"];
+const DAY=86400000;
+const ROLE_NAMES={recruiter:"Recruiter",hm:"Hiring manager",head:"TA Head"};
+
+/* ============================== state ============================== */
+const S={
+  jobs:new Map(),candidates:new Map(),applications:new Map(),notes:new Map(),
+  mode:"init",canWrite:true,uid:null,user:null,profiles:{},
+  view:"board",role:"recruiter",
+  f:{job:"",q:"",recruiter:"",showClosed:false},cq:"",jq:"",
+  drawer:null,modal:null,
+  loaded:{jobs:false,candidates:false,applications:false,notes:false}
+};
+try{const r=localStorage.getItem("mh.role");if(ROLE_NAMES[r])S.role=r}catch(e){}
+
+/* ============================== utils ============================== */
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=p=>p+"-"+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,10));
+const phoneKey=p=>{const d=String(p||"").replace(/\D/g,"");return d.length>10?d.slice(-10):d};
+const fmtDate=t=>t?new Date(t).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}):"—";
+const fmtShort=t=>t?new Date(t).toLocaleDateString("en-IN",{day:"numeric",month:"short"}):"—";
+const fmtDT=t=>t?new Date(t).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"—";
+const daysSince=t=>Math.max(0,Math.floor((Date.now()-t)/DAY));
+const lpa=v=>v||v===0?`₹${(+v).toLocaleString("en-IN",{maximumFractionDigits:1})}L`:"—";
+const splitSkills=s=>String(s||"").split(",").map(x=>x.trim()).filter(Boolean);
+const isOpenStage=st=>STAGES.includes(st)&&st!=="Joined";
+const stageIdx=st=>STAGES.indexOf(st);
+const role=()=>S.role;
+const seesMoney=()=>S.role!=="hm";
+const canAct=()=>S.role!=="hm"&&S.canWrite;
+function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600)}
+function personName(id,label){if(label)return label;if(!id)return "Someone";if(id==="local")return "You (this browser)";const p=S.profiles[id];return (p&&p.name)||(id===S.uid?"You":"Teammate")}
+async function resolveProfiles(ids){if(!S.user)return;const want=[...new Set(ids.filter(i=>i&&i!=="local"))];if(!want.length)return;try{const ps=await S.user.profiles(want);let changed=false;for(const k in ps){if(!S.profiles[k]||S.profiles[k].name!==ps[k].name){S.profiles[k]=ps[k];changed=true}}if(changed)render()}catch(e){}}
+
+/* derived */
+const appsFor=jobId=>[...S.applications.values()].filter(a=>a.jobId===jobId);
+const appsOfCand=cid=>[...S.applications.values()].filter(a=>a.candidateId===cid);
+const reachedOffer=a=>(a.history||[]).some(h=>h.stage==="Offered");
+function noticeRisk(c,j){ if(!c||!j||!j.joinBy)return null; const avail=Date.now()+(+c.noticeDays||0)*DAY; const late=Math.ceil((avail-j.joinBy)/DAY); return late>0?late:null }
+function noticeOverCap(c,j){return j&&j.maxNotice&&(+c.noticeDays||0)>+j.maxNotice}
+
+/* ============================== storage adapter ============================== */
+const COLLS=["jobs","candidates","applications","notes"];
+const Store={
+  db:null,
+  async put(coll,obj){
+    const {id,...body}=obj;
+    if(this.db){ S[coll].set(id,obj); render(); try{await this.db.collection(coll).doc(id).set(JSON.parse(JSON.stringify(body)))}catch(e){handleWriteErr(e)} }
+    else { S[coll].set(id,obj); saveLocal(); render(); }
+  },
+  async del(coll,id){
+    if(this.db){ S[coll].delete(id); render(); try{await this.db.collection(coll).doc(id).delete()}catch(e){handleWriteErr(e)} }
+    else { S[coll].delete(id); saveLocal(); render(); }
+  }
+};
+function handleWriteErr(e){
+  const c=e&&e.code;
+  if(c==="invalid_argument"){S.canWrite=false;toast("You have view-only access to this tracker, so that change was not saved.")}
+  else if(c==="quota_exceeded")toast("Storage is full. Archive old requisitions before adding more.");
+  else toast("That change did not save. Check your connection and try again.");
+  render();
+}
+function saveLocal(){try{const o={};for(const c of COLLS)o[c]=[...S[c].values()];localStorage.setItem("mh.data",JSON.stringify(o))}catch(e){}}
+function loadLocal(){
+  let o=null;try{o=JSON.parse(localStorage.getItem("mh.data")||"null")}catch(e){}
+  if(!o){o=buildSample(Date.now());}
+  for(const c of COLLS){S[c]=new Map((o[c]||[]).map(x=>[x.id,x]));S.loaded[c]=true}
+  saveLocal();
+}
+
+async function boot(){
+  S.view=viewFromHash();
+  render();
+  const hasClaude=!!(window.claude&&typeof window.claude.use==="function");
+  if(!hasClaude){S.mode="local";loadLocal();S.uid="local";render();return}
+  let db=null,user=null;
+  try{[db,user]=await Promise.all([window.claude.use("db"),window.claude.use("user")])}catch(e){}
+  S.user=user;
+  if(user){try{S.uid=await user.id()}catch(e){} try{const cw=await user.can("data.write");if(cw===false)S.canWrite=false}catch(e){} }
+  if(!db){S.mode="local";loadLocal();if(!S.uid)S.uid="local";render();return}
+  Store.db=db;S.mode="db";
+  const timer=setTimeout(()=>{if(S.mode==="db"&&!allLoaded()){S.mode="slow";render()}},10000);
+  for(const c of COLLS){
+    db.collection(c).onSnapshot(snap=>{
+      S[c]=new Map(snap.docs.map(d=>[d.id,{...d.data(),id:d.id}]));
+      if(!snap.metadata.fromCache)S.loaded[c]=true;
+      if(allLoaded()){clearTimeout(timer);if(S.mode==="slow")S.mode="db"}
+      render();
+      const ids=[];for(const n of S.notes.values())ids.push(n.by);for(const a of S.applications.values())for(const h of a.history||[])ids.push(h.by);
+      resolveProfiles(ids);
+    },err=>{clearTimeout(timer);S.mode="error";S.loaded[c]=true;render()});
+  }
+  if(S.uid)resolveProfiles([S.uid]);
+}
+const allLoaded=()=>COLLS.every(c=>S.loaded[c]);
+
+/* ============================== routing ============================== */
+const VIEWS=["board","jobs","candidates","dashboard","brief"];
+function viewFromHash(){const h=location.hash.replace("#","");return VIEWS.includes(h)?h:(S.role==="head"?"dashboard":"board")}
+addEventListener("hashchange",()=>{S.view=viewFromHash();render();$("#main").scrollTop=0});
+
+/* ============================== render root ============================== */
+function render(){
+  document.querySelectorAll(".nav a").forEach(a=>a.setAttribute("aria-current",a.dataset.view===S.view?"page":"false"));
+  document.querySelectorAll("#lens button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.role===S.role?"true":"false"));
+  const dot=$("#sync-dot"),txt=$("#sync-text");
+  const m={init:["wait","Connecting…"],db:["ok","Live · shared with your team"],slow:["wait","Can't reach shared data yet"],local:["","Saved in this browser only"],error:["wait","Shared data unavailable"]}[S.mode]||["",""];
+  dot.className="dot "+m[0];txt.textContent=m[1];
+  $("#me-text").textContent=S.mode==="db"?(S.canWrite?"You can edit":"View-only access"):"";
+  const main=$("#main");
+  const fn={board:viewBoard,jobs:viewJobs,candidates:viewCandidates,dashboard:viewDashboard,brief:viewBrief}[S.view];
+  main.innerHTML=fn();
+  renderLayer();
+}
+function loadingOrEmpty(){
+  if(S.mode==="init"||(S.mode==="db"&&!allLoaded()))return `<div class="empty"><h2>Loading your requisitions…</h2><p>Fetching jobs, candidates and pipeline from the shared tracker.</p></div>`;
+  if(S.mode==="slow")return `<div class="empty"><h2>Shared data can't be reached yet</h2><p>The tracker is still trying to connect. Anything shown may be out of date until it does.</p></div>`;
+  return null;
+}
+function emptyState(){
+  return `<div class="empty"><h2>No requisitions yet</h2><p>Start with a requisition for a client project, then add candidates against it. Or load a realistic sample pipeline to try the workflow first.</p>
+  <div class="toolbar">${canAct()?`<button class="btn primary" data-act="new-job">New requisition</button><button class="btn" data-act="load-sample">Load sample pipeline</button>`:""}</div></div>`;
+}
+function roleBanner(){
+  if(S.role==="hm")return `<div class="banner"><b>Hiring manager view.</b> Shows candidates from Internal Interview onward. Salary fields, consultancy details and rejected candidates are hidden. You can add interview feedback as notes.</div>`;
+  return "";
+}
+function sampleBanner(){
+  const n=[...S.jobs.values()].filter(j=>j.sample).length;
+  if(!n||S.view==="brief")return "";
+  return `<div class="banner warn"><span><b>Sample data.</b> These requisitions and candidates are fictional, for trying the workflow.</span>${canAct()?`<button class="btn sm" data-act="clear-sample" style="margin-left:auto">Remove sample data</button>`:""}</div>`;
+}
+
+/* ============================== board ============================== */
+function visibleApps(){
+  const q=S.f.q.trim().toLowerCase();
+  return [...S.applications.values()].filter(a=>{
+    const j=S.jobs.get(a.jobId),c=S.candidates.get(a.candidateId);
+    if(!j||!c)return false;
+    if(S.f.job){if(a.jobId!==S.f.job)return false}else if(j.status==="Closed")return false;
+    if(S.f.recruiter&&j.recruiter!==S.f.recruiter)return false;
+    if(S.role==="hm"&&(!HM_STAGES.includes(a.stage)))return false;
+    if(q){const hay=[c.name,c.company,...(c.skills||[]),j.title,j.client].join(" ").toLowerCase();if(!q.split(/\s+/).every(t=>hay.includes(t)))return false}
+    return true;
+  });
+}
+function viewBoard(){
+  const lo=loadingOrEmpty();if(lo)return head("Pipeline","")+lo;
+  if(!S.jobs.size)return head("Pipeline","Every candidate, for every open requisition, in one place.")+emptyState();
+  const apps=visibleApps();
+  const stages=S.role==="hm"?HM_STAGES:STAGES;
+  const recruiters=[...new Set([...S.jobs.values()].map(j=>j.recruiter).filter(Boolean))].sort();
+  const openJobs=[...S.jobs.values()].filter(j=>j.status!=="Closed"||j.id===S.f.job).sort((a,b)=>a.title.localeCompare(b.title));
+  const tools=`<div class="toolbar">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input" id="f-q" placeholder="Search name, skill, company" value="${esc(S.f.q)}"></div>
+    <select class="input" id="f-job" style="width:auto;max-width:260px"><option value="">All open requisitions</option>${openJobs.map(j=>`<option value="${esc(j.id)}" ${S.f.job===j.id?"selected":""}>${esc(j.title)} · ${esc(j.client)}</option>`).join("")}</select>
+    <select class="input" id="f-rec" style="width:auto"><option value="">All recruiters</option>${recruiters.map(r=>`<option ${S.f.recruiter===r?"selected":""}>${esc(r)}</option>`).join("")}</select>
+    ${canAct()?`<button class="btn primary" data-act="new-cand">Add candidate</button>`:""}
+  </div>`;
+  const closed=apps.filter(a=>TERMINAL.includes(a.stage));
+  const cols=stages.map(st=>{
+    const list=apps.filter(a=>a.stage===st).sort((a,b)=>a.stageAt-b.stageAt);
+    return `<section class="col" aria-label="${esc(st)}"><div class="col-head"><h3>${esc(st)}</h3><span class="num">${list.length}</span></div>
+      ${list.map(card).join("")||`<div class="empty-col">No one here</div>`}</section>`;
+  }).join("");
+  const closedCol=S.role==="hm"?"":`<section class="col closed" aria-label="Closed"><div class="col-head"><h3>Rejected · Dropped</h3><span class="num">${closed.length}</span></div>
+    ${S.f.showClosed?closed.sort((a,b)=>b.stageAt-a.stageAt).map(card).join(""):""}
+    ${closed.length?`<button class="btn sm ghost" data-act="toggle-closed">${S.f.showClosed?"Hide":"Show"} closed</button>`:`<div class="empty-col">None</div>`}</section>`;
+  return head("Pipeline",`${apps.filter(a=>!TERMINAL.includes(a.stage)&&a.stage!=="Joined").length} candidates in progress across ${S.f.job?"this requisition":openJobs.filter(j=>j.status!=="Closed").length+" open requisitions"}.`,tools)
+    +sampleBanner()+roleBanner()+`<div class="board-wrap"><div class="board">${cols}${closedCol}</div></div>`;
+}
+function card(a){
+  const c=S.candidates.get(a.candidateId),j=S.jobs.get(a.jobId);
+  const risk=noticeRisk(c,j),over=noticeOverCap(c,j);
+  const live=isOpenStage(a.stage);
+  const n=`${+c.noticeDays||0}d notice`;
+  return `<button class="card" data-open-cand="${esc(c.id)}" data-app="${esc(a.id)}">
+    <div class="top"><span class="name">${esc(c.name)}</span><span class="num muted" style="font-size:12px">${esc(c.exp)}y</span></div>
+    <div class="job">${esc(j.title)} · ${esc(j.client)}</div>
+    <div class="meta">
+      ${live&&(risk||over)?`<span class="chip bad" title="${risk?`Available ${risk} days after the project needs them`:"Notice above this requisition's cap"}">${n}</span>`:`<span class="chip">${n}</span>`}
+      <span class="chip">${esc(c.source==="Consultancy"&&seesMoney()?c.consultancy||"Consultancy":c.source)}</span>
+      ${a.stage==="Rejected"?`<span class="chip bad">${esc(a.rejectReason||"Rejected")}</span>`:""}
+      ${a.stage==="Dropped Out"?`<span class="chip warn">${esc(a.dropReason||"Dropped")}</span>`:""}
+      ${a.stage==="Offered"&&a.offer?.joiningDate?`<span class="chip accent">Joins ${fmtShort(a.offer.joiningDate)}</span>`:""}
+    </div>
+    <div class="age">${daysSince(a.stageAt)===0?"Moved today":daysSince(a.stageAt)===1?"1 day in stage":daysSince(a.stageAt)+" days in stage"}</div>
+  </button>`;
+}
+function head(t,sub,tools=""){return `<div class="page-head"><div><h1>${esc(t)}</h1>${sub?`<p>${sub}</p>`:""}</div>${tools}</div>`}
+
+/* ============================== jobs ============================== */
+function viewJobs(){
+  const lo=loadingOrEmpty();if(lo)return head("Requisitions","")+lo;
+  if(!S.jobs.size)return head("Requisitions","Each requisition is tied to a client project and its billing rate.")+emptyState();
+  const q=S.jq.trim().toLowerCase();
+  const jobs=[...S.jobs.values()].filter(j=>!q||[j.title,j.client,j.project,j.recruiter,...(j.skills||[])].join(" ").toLowerCase().includes(q))
+    .sort((a,b)=>(a.status==="Closed")-(b.status==="Closed")||(a.joinBy||9e15)-(b.joinBy||9e15));
+  const tools=`<div class="toolbar"><div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input" id="j-q" placeholder="Search title, client, skill" value="${esc(S.jq)}"></div>${canAct()?`<button class="btn primary" data-act="new-job">New requisition</button>`:""}</div>`;
+  const rows=jobs.map(j=>{
+    const apps=appsFor(j.id);
+    const joined=apps.filter(a=>a.stage==="Joined").length;
+    const counts=STAGES.map(st=>apps.filter(a=>a.stage===st).length);
+    const total=apps.filter(a=>STAGES.includes(a.stage)).length||1;
+    const due=j.joinBy?Math.ceil((j.joinBy-Date.now())/DAY):null;
+    return `<tr class="click" data-open-job="${esc(j.id)}">
+      <td><div class="cell-main">${esc(j.title)}</div><div class="cell-sub">${esc(j.client)} · ${esc(j.project)}</div></td>
+      <td>${j.type==="Bench"?`<span class="chip">Bench</span>`:`<span class="chip accent">Project</span>`}</td>
+      <td><div>${esc(j.location)}</div><div class="cell-sub">${esc(j.expMin)}–${esc(j.expMax)} yrs</div></td>
+      ${seesMoney()?`<td class="num">${lpa(j.ctcMin)}–${lpa(j.ctcMax)}<div class="cell-sub">${j.billingRate?`$${esc(j.billingRate)}/hr billed`:"Non-billable"}</div></td>`:""}
+      <td><div class="mini" title="${STAGES.map((s,i)=>s+": "+counts[i]).join(", ")}">${counts.map((n,i)=>n?`<span style="width:${n/total*100}%;background:var(--accent);opacity:${.25+i*.12}"></span>`:"").join("")}</div><div class="cell-sub" style="margin-top:4px">${apps.filter(a=>isOpenStage(a.stage)).length} active · ${joined}/${esc(j.positions)} filled</div></td>
+      <td>${j.status==="Closed"?`<span class="chip">Closed</span>`:due===null?`<span class="muted">No date</span>`:due<0?`<span class="chip bad">${-due}d overdue</span>`:due<=10?`<span class="chip warn">${fmtShort(j.joinBy)} · ${due}d</span>`:`<span>${fmtShort(j.joinBy)}</span>`}</td>
+      <td>${esc(j.recruiter||"—")}</td></tr>`;
+  }).join("");
+  return head("Requisitions",`${jobs.filter(j=>j.status!=="Closed").length} open. Sorted by the date each project needs people.`,tools)+sampleBanner()+roleBanner()+
+  `<div class="table-wrap"><table><thead><tr><th>Position</th><th>Type</th><th>Location · band</th>${seesMoney()?`<th class="num">CTC range</th>`:""}<th>Pipeline</th><th>Needed by</th><th>Recruiter</th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="muted">No requisitions match “${esc(S.jq)}”.</td></tr>`}</tbody></table></div>`;
+}
+
+/* ============================== candidates ============================== */
+function viewCandidates(){
+  const lo=loadingOrEmpty();if(lo)return head("Candidates","")+lo;
+  const q=S.cq.trim().toLowerCase();
+  let cands=[...S.candidates.values()];
+  if(S.role==="hm"){const ok=new Set(visibleApps().map(a=>a.candidateId));cands=cands.filter(c=>ok.has(c.id))}
+  cands=cands.filter(c=>!q||q.split(/\s+/).every(t=>[c.name,c.company,c.phone,c.email,...(c.skills||[])].join(" ").toLowerCase().includes(t)))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  const tools=`<div class="toolbar"><div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="input" id="c-q" placeholder="Skills, name, phone, company" value="${esc(S.cq)}"></div>${canAct()?`<button class="btn primary" data-act="new-cand">Add candidate</button>`:""}</div>`;
+  if(!S.candidates.size)return head("Candidates","")+(S.jobs.size?`<div class="empty"><h2>No candidates yet</h2><p>Add a candidate against an open requisition. The phone number is checked against everyone already in the system.</p>${canAct()?`<button class="btn primary" data-act="new-cand">Add candidate</button>`:""}</div>`:emptyState());
+  const rows=cands.map(c=>{
+    const apps=appsOfCand(c.id).filter(a=>S.role!=="hm"||HM_STAGES.includes(a.stage));
+    return `<tr class="click" data-open-cand="${esc(c.id)}">
+      <td><div class="cell-main">${esc(c.name)}</div><div class="cell-sub">${esc(c.company||"—")}</div></td>
+      <td><div class="chips">${(c.skills||[]).slice(0,4).map(s=>`<span class="chip skill">${esc(s)}</span>`).join("")}</div></td>
+      <td class="num">${esc(c.exp)}y</td>
+      <td class="num">${esc(c.noticeDays)}d</td>
+      ${seesMoney()?`<td class="num">${lpa(c.ctc)} → ${lpa(c.ectc)}</td>`:""}
+      <td>${esc(c.source==="Consultancy"&&seesMoney()?c.consultancy||"Consultancy":c.source)}</td>
+      <td>${apps.map(a=>{const j=S.jobs.get(a.jobId);return `<div class="cell-sub" style="color:var(--ink)">${esc(j?j.title:"Unknown job")} · <span class="${a.stage==="Rejected"?"muted":""}">${esc(a.stage)}</span></div>`}).join("")||`<span class="muted">Not applied</span>`}</td></tr>`;
+  }).join("");
+  return head("Candidates",`${cands.length} of ${S.candidates.size} people. Search by any skill, e.g. “java kafka”.`,tools)+sampleBanner()+roleBanner()+
+  `<div class="table-wrap"><table><thead><tr><th>Candidate</th><th>Skills</th><th class="num">Exp</th><th class="num">Notice</th>${seesMoney()?`<th class="num">CTC → expected</th>`:""}<th>Source</th><th>Applications</th></tr></thead><tbody>${rows||`<tr><td colspan="7" class="muted">No one matches “${esc(S.cq)}”.</td></tr>`}</tbody></table></div>`;
+}
+
+/* ============================== dashboard ============================== */
+function metrics(){
+  const apps=[...S.applications.values()],jobs=[...S.jobs.values()];
+  const open=jobs.filter(j=>j.status!=="Closed");
+  const openIds=new Set(open.map(j=>j.id));
+  const active=apps.filter(a=>openIds.has(a.jobId)&&isOpenStage(a.stage));
+  const offered=apps.filter(reachedOffer);
+  const joined=offered.filter(a=>a.stage==="Joined").length;
+  const dropped=offered.filter(a=>a.stage==="Dropped Out").length;
+  const pendingJoin=offered.filter(a=>a.stage==="Offered"||a.stage==="BGV").length;
+  const ttf=[];for(const j of jobs){const js=appsFor(j.id).filter(a=>a.stage==="Joined").map(a=>(a.history||[]).find(h=>h.stage==="Joined")?.at).filter(Boolean);if(js.length)ttf.push((Math.min(...js)-j.createdAt)/DAY)}
+  const positions=open.reduce((s,j)=>s+(+j.positions||0),0);
+  const filled=open.reduce((s,j)=>s+appsFor(j.id).filter(a=>a.stage==="Joined").length,0);
+  const noticeFlags=active.filter(a=>{const c=S.candidates.get(a.candidateId),j=S.jobs.get(a.jobId);return noticeRisk(c,j)||noticeOverCap(c,j)}).length;
+  return {apps,jobs,open,active,joined,dropped,pendingJoin,ttf,positions,filled,noticeFlags,dropRate:(joined+dropped)?dropped/(joined+dropped):null};
+}
+function viewDashboard(){
+  const lo=loadingOrEmpty();if(lo)return head("Dashboard","")+lo;
+  if(!S.jobs.size)return head("Dashboard","")+emptyState();
+  const m=metrics();
+  const stageCounts=STAGES.slice(0,6).map(st=>[st,m.active.filter(a=>a.stage===st).length]);
+  const maxStage=Math.max(1,...stageCounts.map(x=>x[1]));
+  const srcRows=SOURCES.map(s=>{const as=m.apps.filter(a=>S.candidates.get(a.candidateId)?.source===s);return {s,n:as.length,adv:as.filter(a=>(a.history||[]).some(h=>h.stage==="Client Round")).length,off:as.filter(reachedOffer).length,join:as.filter(a=>a.stage==="Joined").length}});
+  const dropReasons={};m.apps.filter(a=>a.stage==="Dropped Out").forEach(a=>dropReasons[a.dropReason||"Not recorded"]=(dropReasons[a.dropReason||"Not recorded"]||0)+1);
+  const rejReasons={};m.apps.filter(a=>a.stage==="Rejected").forEach(a=>rejReasons[a.rejectReason||"Not recorded"]=(rejReasons[a.rejectReason||"Not recorded"]||0)+1);
+  const rr=Object.entries(rejReasons).sort((a,b)=>b[1]-a[1]);const maxR=Math.max(1,...rr.map(x=>x[1]));
+  const atRisk=m.open.filter(j=>j.joinBy).map(j=>{const as=appsFor(j.id);const late=as.filter(a=>stageIdx(a.stage)>=3&&a.stage!=="Joined").length;const need=(+j.positions||0)-as.filter(a=>a.stage==="Joined").length;return {j,late,need,due:Math.ceil((j.joinBy-Date.now())/DAY)}}).filter(x=>x.need>0&&x.due<=21&&x.late<x.need).sort((a,b)=>a.due-b.due);
+  const avgTtf=m.ttf.length?Math.round(m.ttf.reduce((a,b)=>a+b,0)/m.ttf.length):null;
+  return head("Dashboard","Live numbers for the quarter's hiring. Every figure is computed from the pipeline, not typed in.")+sampleBanner()+
+  `<div class="kpis">
+    <div class="kpi"><span class="label">Open requisitions</span><span class="value">${m.open.length}</span><span class="foot">${m.filled} of ${m.positions} positions filled</span></div>
+    <div class="kpi"><span class="label">Candidates in progress</span><span class="value">${m.active.length}</span><span class="foot">${m.noticeFlags} with notice-period risk</span></div>
+    <div class="kpi"><span class="label">Offers awaiting joining</span><span class="value">${m.pendingJoin}</span><span class="foot">Offered or in BGV</span></div>
+    <div class="kpi ${m.dropRate>=.25?"alert":""}"><span class="label">Offer → join drop-out</span><span class="value">${m.dropRate===null?"—":Math.round(m.dropRate*100)+"<small>%</small>"}</span><span class="foot">${m.dropped} dropped of ${m.joined+m.dropped} decided offers</span></div>
+    <div class="kpi"><span class="label">Avg time to fill</span><span class="value">${avgTtf===null?"—":avgTtf+"<small> days</small>"}</span><span class="foot">Requisition opened → first joining</span></div>
+  </div>
+  <div class="panels">
+    <section class="panel"><div><h2>Candidates per stage</h2><div class="sub">Open requisitions only</div></div>
+      <div class="bars">${stageCounts.map(([s,n])=>`<div class="bar-row"><span>${esc(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${n/maxStage*100}%"></div></div><span class="num">${n}</span></div>`).join("")}</div></section>
+    <section class="panel"><div><h2>Requisitions at risk</h2><div class="sub">Needed within 21 days, with fewer candidates at Client Round or later than open positions</div></div>
+      ${atRisk.length?`<div class="table-wrap" style="border:0"><table><thead><tr><th>Position</th><th class="num">Due</th><th class="num">Open</th><th class="num">Late-stage</th></tr></thead><tbody>${atRisk.map(x=>`<tr class="click" data-open-job="${esc(x.j.id)}"><td><div class="cell-main">${esc(x.j.title)}</div><div class="cell-sub">${esc(x.j.client)}</div></td><td class="num">${x.due<0?`<span class="chip bad">${-x.due}d late</span>`:x.due+"d"}</td><td class="num">${x.need}</td><td class="num">${x.late}</td></tr>`).join("")}</tbody></table></div>`:`<p class="muted" style="margin:0">No requisition is at risk in the next three weeks.</p>`}</section>
+    <section class="panel"><div><h2>Which source works</h2><div class="sub">All applications, all time. Consultancies charge 8.33% of annual CTC per hire.</div></div>
+      <div class="table-wrap" style="border:0"><table><thead><tr><th>Source</th><th class="num">Applied</th><th class="num">Reached client</th><th class="num">Offered</th><th class="num">Joined</th><th class="num">Join rate</th></tr></thead><tbody>
+      ${srcRows.map(r=>`<tr><td class="cell-main">${esc(r.s)}</td><td class="num">${r.n}</td><td class="num">${r.adv}</td><td class="num">${r.off}</td><td class="num">${r.join}</td><td class="num">${r.n?Math.round(r.join/r.n*100)+"%":"—"}</td></tr>`).join("")}</tbody></table></div></section>
+    <section class="panel"><div><h2>Why candidates leave the funnel</h2><div class="sub">Reject reason codes, and drop-out reasons after an offer</div></div>
+      <div class="bars">${rr.map(([s,n])=>`<div class="bar-row"><span title="${esc(s)}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${n/maxR*100}%;background:var(--muted)"></div></div><span class="num">${n}</span></div>`).join("")||`<p class="muted" style="margin:0">No rejections recorded yet.</p>`}</div>
+      ${Object.keys(dropReasons).length?`<div class="chips">${Object.entries(dropReasons).map(([k,v])=>`<span class="chip warn">${esc(k)} · ${v}</span>`).join("")}</div>`:""}</section>
+  </div>`;
+}
+
+/* ============================== brief (P.R.O.T.O.) ============================== */
+function viewBrief(){
+  const stories=[
+    ["US-01","As a recruiter, I want to add a candidate against an open requisition, so that my colleagues can see the candidate is already being pursued.","I can save name, phone, email, current company, current and expected CTC, notice period, experience, skills and source; the candidate appears under that job; DPDP consent is recorded.","Built"],
+    ["US-02","As a recruiter, I want to be warned when a phone number already exists, so that two of us never call the same candidate for different roles.","Typing a 10-digit number that exists shows the existing person, their active applications and the recruiter on each, before I save; I can add them to my job instead.","Built"],
+    ["US-03","As a recruiter, I want to apply one candidate to several requisitions, so that a person can be at Client Round for one job and Rejected for another at the same time.","Each application has its own stage and history; the same requisition cannot be added twice for one candidate.","Built"],
+    ["US-04","As a recruiter, I want to move a candidate to the next stage, so that the pipeline reflects reality without me editing a spreadsheet.","The candidate moves between stages, the change is timestamped with who made it, and I can move them back if a round is repeated.","Built"],
+    ["US-05","As a recruiter, I want to reject or mark a candidate as dropped out with a reason code, so that we learn why people leave the funnel.","Reject and drop-out both require a reason from a fixed list; the reason shows on the card and in the dashboard.","Built"],
+    ["US-06","As a recruiter, I want to record offered CTC and joining date when I make an offer, so that we can track who is due to join and when.","Moving to Offered requires both fields; the joining date shows on the pipeline card.","Built"],
+    ["US-07","As a recruiter, I want to see when a candidate's notice period makes them late for the project, so that I don't spend a week on someone who can't join in time.","If today plus notice days falls after the requisition's 'needed by' date, or above its notice cap, the card is flagged red with the number of days.","Built"],
+    ["US-08","As a recruiter, I want to add dated notes to a candidate, so that the next person who calls them knows what was said.","Each note shows its text, who wrote it and when; notes cannot be edited after saving.","Built"],
+    ["US-09","As a hiring manager, I want to see only the shortlisted candidates for my role, so that I am not reviewing people the recruiter has already rejected.","I see candidates at Internal Interview and later; I cannot see rejected candidates; I cannot see any salary field or consultancy name.","Built (role view)"],
+    ["US-10","As the TA Head, I want to answer a client's status question about a position in under a minute, so that client calls stop taking a day and a half.","Opening a requisition shows counts per stage and every candidate's stage; one button copies a status update ready to paste in an email.","Built"],
+    ["US-11","As the TA Head, I want to know what share of accepted offers never join, so that I can prove or disprove the 'about a third' feeling.","The dashboard shows offer-to-join drop-out as dropped ÷ (joined + dropped) over all offers that have reached an outcome, with drop reasons.","Built"],
+    ["US-12","As the TA Head, I want to see which source produces joiners, so that I can decide where consultancy spend goes.","The dashboard shows applied, reached client round, offered and joined counts per source.","Built"],
+    ["US-13","As a candidate, I want to check my application status online, so that I don't have to chase the recruiter.","I can sign in, see the stage of each of my applications and nothing about internal notes or other candidates.","Next pass"]
+  ];
+  return head("P.R.O.T.O. build record","The five artifacts written before this app was built, kept next to the app so that every feature can be traced back to a problem.")+
+  `<div class="brief">
+  <section class="step"><div class="step-head"><span class="step-letter">P</span><div><h2>Problem</h2><p>Whose pain is this, how often does it hurt, and what does it cost today?</p></div></div>
+    <blockquote>Four recruiters at Meridian Technologies, a 450-person IT services firm, keep four different copies of one Excel tracker on a shared drive. Last month two of them called the same candidate on the same day for two different roles, and she posted about it on LinkedIn. When a client asked for the status of a Java position, the Head of Talent Acquisition needed a day and a half to answer. With 60 hires to close this quarter, project roles that must be staffed within 3 weeks of signing, and 20% attrition to backfill, they suspect about a third of accepted offers never join, and nobody can prove it.</blockquote>
+    <p class="muted" style="font-size:13px">Passes the three tests: <b>who</b> (4 recruiters and the TA Head), <b>how often</b> (daily data entry, weekly client questions, 60 hires a quarter), <b>cost</b> (36 hours per status answer, public reputational damage, roughly 1 in 3 offers lost).</p>
+  </section>
+
+  <section class="step"><div class="step-head"><span class="step-letter">R</span><div><h2>Research</h2><p>Who already solved this, what do they charge, and where do they fall short for an IT services firm?</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Product</th><th>Built for whom</th><th>Pricing model</th><th>One thing it does badly for Meridian</th></tr></thead><tbody>
+      <tr><td class="cell-main">Zoho Recruit</td><td>Small and mid-size firms and staffing agencies</td><td>Per recruiter seat per month; free tier for one recruiter</td><td>Client round and notice-period-versus-project-start check need custom fields and workflow setup</td></tr>
+      <tr><td class="cell-main">Keka Hire</td><td>Indian mid-market companies on Keka HRMS</td><td>Bundled per employee per month with the HRMS</td><td>Built for in-house hiring; a requisition has no client, project or billing rate</td></tr>
+      <tr><td class="cell-main">Darwinbox</td><td>Large Indian enterprises</td><td>Custom annual contract, implementation fee</td><td>Implementation is measured in months; the client wants something working in two weeks</td></tr>
+      <tr><td class="cell-main">Naukri RMS</td><td>Recruiters who source mainly from Naukri</td><td>Annual subscription, often bundled with database access</td><td>Weak at comparing Naukri against referrals and the three consultancies on cost per joiner</td></tr>
+      <tr><td class="cell-main">Greenhouse</td><td>US and global product companies</td><td>Custom annual pricing in USD by company size</td><td>Priced for US companies, with no notion of Indian notice periods, CTC bands or DPDP retention</td></tr>
+    </tbody></table></div>
+    <p><b>The gap:</b> no affordable tool treats a requisition as a billable client-project slot with a hard start date, so none of them warns a recruiter that a candidate's notice period makes them useless for that project.</p>
+    <p class="muted" style="font-size:12.5px">Pricing models summarised from vendor positioning; confirm current prices on each vendor's site before quoting them.</p>
+  </section>
+
+  <section class="step"><div class="step-head"><span class="step-letter">O</span><div><h2>Owners</h2><p>Who touches this system, how often, what they need, and what they must never see.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Role</th><th>Frequency</th><th>Primary need</th><th>Must not see</th></tr></thead><tbody>
+      <tr><td class="cell-main">Recruiter (4)</td><td>All day</td><td>Fast data entry, no duplicate outreach</td><td>—</td></tr>
+      <tr><td class="cell-main">Hiring manager (~15)</td><td>Occasionally</td><td>Shortlist quality, interview feedback</td><td>Current and expected CTC, consultancy name and fee, rejected candidates</td></tr>
+      <tr><td class="cell-main">TA Head (1)</td><td>Daily</td><td>Dashboards, instant answers for clients</td><td>—</td></tr>
+      <tr><td class="cell-main">Client (US/UK)</td><td>Weekly, via TA Head</td><td>Status of their positions</td><td>Other clients' requisitions, CTC, Meridian's margin on billing rate</td></tr>
+      <tr><td class="cell-main">Candidate</td><td>A few times per application</td><td>Status transparency</td><td>Internal notes, interview feedback, reject codes, other candidates</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="step"><div class="step-head"><span class="step-letter">T</span><div><h2>Tasks</h2><p>User stories in the fixed format, each with a testable "done when".</p></div></div>
+    <div>${stories.map(s=>`<div class="story"><span class="id">${s[0]}</span><div><div class="as">${esc(s[1])}</div><div class="done"><b>Done when:</b> ${esc(s[2])}</div></div><span>${s[3]==="Next pass"?`<span class="chip">Next pass</span>`:`<span class="chip good">${esc(s[3])}</span>`}</span></div>`).join("")}</div>
+  </section>
+
+  <section class="step"><div class="step-head"><span class="step-letter">↔</span><div><h2>The bridge: nouns to data model</h2><p>Every noun in the stories became a table. Application is a thing in its own right.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Noun / table</th><th>Fields it holds</th><th>What it connects to</th></tr></thead><tbody>
+      <tr><td class="cell-main">Job (requisition)</td><td>Title, client, project, type (project/bench), skills, experience band, CTC range, location, positions, billing rate, target closure date, needed-by date, notice cap, recruiter, hiring manager, status</td><td>Has many Applications</td></tr>
+      <tr><td class="cell-main">Candidate</td><td>Name, phone (unique key), email, current company, current CTC, expected CTC, notice period, total experience, skills, source, consultancy, DPDP consent date</td><td>Has many Applications and Notes</td></tr>
+      <tr><td class="cell-main">Application</td><td>Candidate, job, current stage, stage timestamp, reject reason, drop-out reason, offer (CTC, joining date)</td><td>Belongs to one Candidate and one Job; has many Stage events</td></tr>
+      <tr><td class="cell-main">Stage event</td><td>Stage, timestamp, who moved it, optional reason</td><td>Belongs to one Application (stored as its history)</td></tr>
+      <tr><td class="cell-main">Note</td><td>Text, author, timestamp, optional related job</td><td>Belongs to one Candidate</td></tr>
+      <tr><td class="cell-main">User</td><td>Platform identity (opaque id); role view</td><td>Writes Notes and Stage events</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="step"><div class="step-head"><span class="step-letter">O</span><div><h2>One slice</h2><p>The thinnest path that still delivers the promise.</p></div></div>
+    <div class="loop">A recruiter can take one candidate from Applied to Joined, against a client requisition, without opening Excel, and nobody else on the team calls that candidate by mistake.</div>
+    <div class="moscow">
+      <div><h3>Must have · built</h3><ul><li>Job requisition with client, project, billing rate</li><li>Candidate record</li><li>Application linking candidate ↔ job</li><li>Pipeline stages, Rejected, Dropped Out</li><li>Timestamped stage moves, forward and back</li><li>Duplicate phone warning</li><li>Notes with author and time</li><li>Source tracking</li></ul></div>
+      <div><h3>Should have</h3><ul><li><b>Built:</b> skill search and filters</li><li><b>Built:</b> recruiter per requisition</li><li><b>Built:</b> offer CTC and joining date</li><li><b>Built:</b> basic dashboard</li><li><b>Built:</b> reject reason codes</li><li>Next: resume upload</li><li>Next: interview scheduling with panel</li><li>Next: email from inside the app</li></ul></div>
+      <div><h3>Could have</h3><ul><li>Candidate self-service portal</li><li>Automated email templates</li><li>Consultancy commission calculation</li><li>Client-facing status report (a copy-paste version exists)</li><li>Bulk resume import</li><li>Offer-drop risk flag</li><li>Audit log</li><li>Naukri / LinkedIn integration</li><li>Mobile view for hiring managers</li></ul></div>
+      <div><h3>Won't have in v1</h3><ul><li><b>Payroll:</b> separate product, owned by Finance</li><li><b>Onboarding after joining:</b> the ATS ends at Joined</li><li><b>Performance management:</b> HRMS territory</li><li><b>Anything AI-powered:</b> no clean history to learn from yet; data first</li></ul></div>
+    </div>
+    <p class="muted" style="font-size:13px">Should-haves that were built cost under a day each because the data model already held the fields. Resume upload, scheduling and email were deferred under the cut test: a recruiter can still attach a resume in email, book a panel in Outlook, and send mail from Outlook for now.</p>
+  </section>
+
+  <section class="step"><div class="step-head"><span class="step-letter">↻</span><div><h2>The loop: what the next pass must test</h2><p>Assumptions written down honestly, to check with one real recruiter.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Assumption</th><th>How we will know</th></tr></thead><tbody>
+      <tr><td>Phone number is the right uniqueness key</td><td>Count duplicates found by email that the phone check missed in the first month</td></tr>
+      <tr><td>"Time to fill" means requisition opened → candidate joined</td><td>Confirm with the TA Head; the alternative (→ offer accepted) changes every number on the dashboard</td></tr>
+      <tr><td>Hiring managers need only Internal Interview onward</td><td>Ask 3 hiring managers if they ever review at screening</td></tr>
+      <tr><td>DPDP: keep candidate data 3 years, then purge</td><td>Legal sign-off on retention period and on the consent wording</td></tr>
+    </tbody></table></div>
+  </section>
+  </div>`;
+}
+
+/* ============================== layer (drawers/modals) ============================== */
+function renderLayer(){
+  const L=$("#layer");
+  const keep=document.activeElement&&L.contains(document.activeElement)?document.activeElement.id:null;
+  let html="";
+  if(S.drawer?.type==="cand")html+=drawerCand();
+  if(S.drawer?.type==="job")html+=drawerJob();
+  if(S.modal)html+=modalHtml();
+  // preserve modal form values across rerenders
+  const vals={};L.querySelectorAll(".modal input,.modal select,.modal textarea,.inline-form input,.inline-form select,.inline-form textarea,#note-text").forEach(el=>{if(el.id)vals[el.id]=el.type==="checkbox"?el.checked:el.value});
+  L.innerHTML=html;
+  for(const k in vals){const el=document.getElementById(k);if(el){if(el.type==="checkbox")el.checked=vals[k];else el.value=vals[k]}}
+  if(S.modal?.type==="cand")updateDup();
+  if(keep){const el=document.getElementById(keep);if(el)el.focus()}
+}
+function closeLayer(which){if(which==="modal")S.modal=null;else{S.drawer=null;S.modal=null}renderLayer()}
+
+function drawerCand(){
+  const c=S.candidates.get(S.drawer.id);if(!c)return "";
+  let apps=appsOfCand(c.id);
+  if(S.role==="hm")apps=apps.filter(a=>HM_STAGES.includes(a.stage));
+  apps.sort((a,b)=>(a.id===S.drawer.app?-1:b.id===S.drawer.app?1:b.stageAt-a.stageAt));
+  const notes=[...S.notes.values()].filter(n=>n.candidateId===c.id).sort((a,b)=>b.at-a.at);
+  const appliedJobIds=new Set(appsOfCand(c.id).map(a=>a.jobId));
+  const avail=[...S.jobs.values()].filter(j=>j.status!=="Closed"&&!appliedJobIds.has(j.id));
+  return `<div class="scrim" data-scrim="drawer"><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(c.name)}">
+    <div class="drawer-head"><div><h2>${esc(c.name)}</h2><div class="muted">${esc(c.company||"—")} · ${esc(c.exp)} yrs · ${esc(c.location||"")}</div></div><button class="btn ghost" data-act="close" aria-label="Close">✕</button></div>
+    <div class="drawer-body">
+      <section class="section"><dl class="kv" style="margin:0">
+        <div><dt>Phone</dt><dd class="mono">${esc(c.phone)}</dd></div>
+        <div><dt>Email</dt><dd>${esc(c.email||"—")}</dd></div>
+        <div><dt>Notice period</dt><dd>${esc(c.noticeDays)} days</dd></div>
+        ${seesMoney()?`<div><dt>Current CTC</dt><dd class="num">${lpa(c.ctc)}</dd></div><div><dt>Expected CTC</dt><dd class="num">${lpa(c.ectc)}${c.ctc&&c.ectc?` <span class="muted">(+${Math.round((c.ectc/c.ctc-1)*100)}%)</span>`:""}</dd></div>`:""}
+        <div><dt>Source</dt><dd>${esc(c.source==="Consultancy"&&seesMoney()?`Consultancy · ${c.consultancy||"—"}`:c.source)}</dd></div>
+        <div style="grid-column:1/-1"><dt>Skills</dt><dd><div class="chips" style="margin-top:3px">${(c.skills||[]).map(s=>`<span class="chip skill">${esc(s)}</span>`).join("")}</div></dd></div>
+        ${S.role!=="hm"?`<div style="grid-column:1/-1"><dt>Data consent (DPDP)</dt><dd>${c.consentAt?`Recorded ${fmtDate(c.consentAt)} · retain until ${fmtDate(c.consentAt+3*365*DAY)}`:`<span class="chip warn">Not recorded</span>`}</dd></div>`:""}
+      </dl></section>
+
+      <section class="section"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><h3>Applications</h3>
+        ${canAct()&&avail.length?`<div class="row" style="flex:0 1 auto"><select class="input" id="add-app-job" style="width:auto;max-width:240px">${avail.map(j=>`<option value="${esc(j.id)}">${esc(j.title)} · ${esc(j.client)}</option>`).join("")}</select><button class="btn sm" data-act="add-app" data-cand="${esc(c.id)}" style="flex:none">Add to job</button></div>`:""}</div>
+        ${apps.map(a=>appBlock(a,c)).join("")||`<p class="muted" style="margin:0">Not applied to any requisition yet.</p>`}
+      </section>
+
+      <section class="section"><h3>Notes</h3>
+        ${S.canWrite||S.mode!=="db"?`<div class="inline-form" style="border:0;padding:0"><textarea class="input" id="note-text" placeholder="${S.role==="hm"?"Interview feedback for the recruiter":"What was discussed, next step, availability…"}"></textarea><div><button class="btn sm primary" data-act="add-note" data-cand="${esc(c.id)}">Add note</button></div></div>`:""}
+        ${notes.map(n=>{const j=n.jobId&&S.jobs.get(n.jobId);return `<div class="note"><p>${esc(n.text)}</p><small>${esc(personName(n.by,n.byLabel))} · ${fmtDT(n.at)}${j?` · ${esc(j.title)}`:""}</small></div>`}).join("")||`<p class="muted" style="margin:0">No notes yet.</p>`}
+      </section>
+      ${canAct()?`<div><button class="btn sm danger" data-act="del-cand" data-cand="${esc(c.id)}">Erase candidate (DPDP request)</button></div>`:""}
+    </div></aside></div>`;
+}
+function appBlock(a,c){
+  const j=S.jobs.get(a.jobId);if(!j)return "";
+  const idx=stageIdx(a.stage);const term=TERMINAL.includes(a.stage);
+  const lastLive=term?[...(a.history||[])].reverse().find(h=>STAGES.includes(h.stage))?.stage||"Applied":null;
+  const li=term?stageIdx(lastLive):idx;
+  const risk=noticeRisk(c,j),over=noticeOverCap(c,j);
+  const pending=S.drawer.pending&&S.drawer.pending.app===a.id?S.drawer.pending.kind:null;
+  const next=STAGES[idx+1];
+  let actions="";
+  if(canAct()){
+    if(!term){
+      actions=`${idx>0?`<button class="btn sm" data-act="move" data-app="${esc(a.id)}" data-to="${esc(STAGES[idx-1])}">← Back to ${esc(STAGES[idx-1])}</button>`:""}
+      ${next?(next==="Offered"?`<button class="btn sm primary" data-act="pend" data-kind="offer" data-app="${esc(a.id)}">Make offer →</button>`:`<button class="btn sm primary" data-act="move" data-app="${esc(a.id)}" data-to="${esc(next)}">Move to ${esc(next)} →</button>`):""}
+      ${a.stage!=="Joined"?`<button class="btn sm danger" data-act="pend" data-kind="reject" data-app="${esc(a.id)}">Reject</button><button class="btn sm" data-act="pend" data-kind="drop" data-app="${esc(a.id)}">Dropped out</button>`:""}`;
+    }else actions=`<button class="btn sm" data-act="move" data-app="${esc(a.id)}" data-to="${esc(lastLive)}">Reopen at ${esc(lastLive)}</button>`;
+  }
+  let pend="";
+  if(pending==="offer")pend=`<div class="inline-form"><b>Offer details</b><div class="row"><label class="f"><span>Offered CTC (₹ lakh / yr)</span><input class="input" id="off-ctc" type="number" step="0.1" min="0" value="${esc(c.ectc||"")}"></label><label class="f"><span>Joining date</span><input class="input" id="off-date" type="date" value="${new Date(Date.now()+(+c.noticeDays||30)*DAY).toISOString().slice(0,10)}"></label></div>${j.ctcMax&&seesMoney()?`<span class="muted" style="font-size:12.5px">Requisition range ${lpa(j.ctcMin)}–${lpa(j.ctcMax)}</span>`:""}<div class="row" style="justify-content:flex-start"><button class="btn sm primary" style="flex:none" data-act="confirm-offer" data-app="${esc(a.id)}">Record offer</button><button class="btn sm ghost" style="flex:none" data-act="unpend">Cancel</button></div></div>`;
+  if(pending==="reject"||pending==="drop"){const codes=pending==="reject"?REJECT_CODES:DROP_CODES;pend=`<div class="inline-form"><label class="f"><span>${pending==="reject"?"Reject reason":"Why did they drop out?"}</span><select class="input" id="reason">${codes.map(r=>`<option>${esc(r)}</option>`).join("")}</select></label><div class="row" style="justify-content:flex-start"><button class="btn sm ${pending==="reject"?"danger":"primary"}" style="flex:none" data-act="confirm-${pending}" data-app="${esc(a.id)}">${pending==="reject"?"Reject candidate":"Mark dropped out"}</button><button class="btn sm ghost" style="flex:none" data-act="unpend">Cancel</button></div></div>`}
+  return `<div class="app-block ${a.id===S.drawer.app?"focus":""}">
+    <div class="app-top"><div><b>${esc(j.title)}</b> <span class="muted">· ${esc(j.client)}</span></div>
+      <span class="chip ${a.stage==="Joined"?"good":a.stage==="Rejected"?"bad":a.stage==="Dropped Out"?"warn":"accent"}">${esc(a.stage)}${a.rejectReason&&a.stage==="Rejected"?" · "+esc(a.rejectReason):""}${a.dropReason&&a.stage==="Dropped Out"?" · "+esc(a.dropReason):""}</span></div>
+    <div class="stepper ${term?"bad":""}" aria-hidden="true">${STAGES.map((s,i)=>`<span class="${i<li?"done":i===li?"now":""}" title="${esc(s)}"></span>`).join("")}</div>
+    ${!term&&a.stage!=="Joined"&&(risk||over)?`<div class="chip bad" style="white-space:normal">${risk?`Notice period: available ${risk} days after the project's needed-by date (${fmtShort(j.joinBy)})`:`Notice ${esc(c.noticeDays)}d is above this requisition's ${esc(j.maxNotice)}-day cap`}</div>`:""}
+    ${a.offer&&seesMoney()?`<div style="font-size:13px">Offer: <b class="num">${lpa(a.offer.ctc)}</b> · joining <b>${fmtDate(a.offer.joiningDate)}</b></div>`:a.offer?`<div style="font-size:13px">Joining <b>${fmtDate(a.offer.joiningDate)}</b></div>`:""}
+    ${actions?`<div class="app-actions">${actions}</div>`:""}${pend}
+    <details><summary class="muted" style="cursor:pointer;font-size:12.5px">Stage history (${(a.history||[]).length})</summary>
+      <ol class="timeline" style="margin-top:8px">${[...(a.history||[])].reverse().map(h=>`<li><time>${fmtDT(h.at)}</time><span><b>${esc(h.stage)}</b>${h.reason?` · ${esc(h.reason)}`:""} <span class="muted">by ${esc(personName(h.by,h.byLabel))}</span></span></li>`).join("")}</ol></details>
+  </div>`;
+}
+
+function drawerJob(){
+  const j=S.jobs.get(S.drawer.id);if(!j)return "";
+  let apps=appsFor(j.id);if(S.role==="hm")apps=apps.filter(a=>HM_STAGES.includes(a.stage));
+  apps.sort((a,b)=>{const ai=TERMINAL.includes(a.stage)?99:stageIdx(a.stage),bi=TERMINAL.includes(b.stage)?99:stageIdx(b.stage);return bi===99?-1:ai===99?1:bi-ai});
+  const counts=STAGES.map(s=>[s,apps.filter(a=>a.stage===s).length]);
+  return `<div class="scrim" data-scrim="drawer"><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(j.title)}">
+    <div class="drawer-head"><div><h2>${esc(j.title)}</h2><div class="muted">${esc(j.client)} · ${esc(j.project)}</div></div><button class="btn ghost" data-act="close" aria-label="Close">✕</button></div>
+    <div class="drawer-body">
+      <div class="toolbar">${S.role!=="hm"?`<button class="btn primary" data-act="copy-status" data-job="${esc(j.id)}">Copy client status update</button>`:""}
+        <button class="btn" data-act="board-for" data-job="${esc(j.id)}">Open in pipeline</button>
+        ${canAct()?`<button class="btn" data-act="edit-job" data-job="${esc(j.id)}">Edit</button>`:""}</div>
+      <section class="section"><dl class="kv" style="margin:0">
+        <div><dt>Type</dt><dd>${esc(j.type)}</dd></div><div><dt>Status</dt><dd>${esc(j.status)}</dd></div><div><dt>Positions</dt><dd>${esc(j.positions)}</dd></div>
+        <div><dt>Location</dt><dd>${esc(j.location)}</dd></div><div><dt>Experience</dt><dd>${esc(j.expMin)}–${esc(j.expMax)} yrs</dd></div>
+        ${seesMoney()?`<div><dt>CTC range</dt><dd class="num">${lpa(j.ctcMin)}–${lpa(j.ctcMax)}</dd></div><div><dt>Billing rate</dt><dd class="num">${j.billingRate?`$${esc(j.billingRate)}/hr`:"Non-billable"}</dd></div>`:""}
+        <div><dt>Needed by</dt><dd>${fmtDate(j.joinBy)}</dd></div><div><dt>Target closure</dt><dd>${fmtDate(j.targetDate)}</dd></div><div><dt>Max notice</dt><dd>${j.maxNotice?esc(j.maxNotice)+" days":"—"}</dd></div>
+        <div><dt>Recruiter</dt><dd>${esc(j.recruiter||"—")}</dd></div><div><dt>Hiring manager</dt><dd>${esc(j.hiringManager||"—")}</dd></div><div><dt>Opened</dt><dd>${fmtDate(j.createdAt)}</dd></div>
+        <div style="grid-column:1/-1"><dt>Skills required</dt><dd><div class="chips" style="margin-top:3px">${(j.skills||[]).map(s=>`<span class="chip skill">${esc(s)}</span>`).join("")}</div></dd></div>
+      </dl></section>
+      <section class="section"><h3>Where things stand</h3>
+        <div class="bars">${counts.filter(([s])=>S.role!=="hm"||HM_STAGES.includes(s)).map(([s,n])=>`<div class="bar-row"><span>${esc(s)}</span><div class="bar-track"><div class="bar-fill" style="width:${n/Math.max(1,...counts.map(x=>x[1]))*100}%"></div></div><span class="num">${n}</span></div>`).join("")}</div>
+      </section>
+      <section class="section"><h3>Candidates</h3>
+        ${apps.length?`<div class="table-wrap" style="border:0"><table><tbody>${apps.map(a=>{const c=S.candidates.get(a.candidateId);if(!c)return "";return `<tr class="click" data-open-cand="${esc(c.id)}" data-app="${esc(a.id)}"><td><div class="cell-main">${esc(c.name)}</div><div class="cell-sub">${esc(c.exp)}y · ${esc(c.noticeDays)}d notice</div></td><td><span class="chip ${a.stage==="Joined"?"good":a.stage==="Rejected"?"bad":a.stage==="Dropped Out"?"warn":""}">${esc(a.stage)}</span></td><td class="cell-sub">since ${fmtShort(a.stageAt)}</td></tr>`}).join("")}</tbody></table></div>`:`<p class="muted" style="margin:0">No candidates yet.</p>`}
+        ${canAct()?`<div><button class="btn sm" data-act="new-cand" data-job="${esc(j.id)}">Add candidate to this requisition</button></div>`:""}
+      </section>
+    </div></aside></div>`;
+}
+
+function modalHtml(){
+  const m=S.modal;
+  if(m.type==="job"){
+    const j=m.id?S.jobs.get(m.id):{};const d=t=>t?new Date(t).toISOString().slice(0,10):"";
+    return `<div class="modal-scrim" data-scrim="modal"><form class="modal" id="job-form" role="dialog" aria-modal="true" aria-labelledby="job-h">
+      <div class="modal-head"><h2 id="job-h">${m.id?"Edit requisition":"New requisition"}</h2><button type="button" class="btn ghost" data-act="close-modal" aria-label="Close">✕</button></div>
+      <div class="modal-body"><div class="grid-form">
+        <label class="f wide"><span>Position title</span><input class="input" id="j-title" required value="${esc(j.title||"")}" placeholder="Senior Java Developer"></label>
+        <label class="f"><span>Client</span><input class="input" id="j-client" required value="${esc(j.client||"")}" placeholder="Client name"></label>
+        <label class="f"><span>Project</span><input class="input" id="j-project" value="${esc(j.project||"")}" placeholder="Project or bench pool"></label>
+        <label class="f"><span>Type</span><select class="input" id="j-type"><option ${j.type!=="Bench"?"selected":""}>Project</option><option ${j.type==="Bench"?"selected":""}>Bench</option></select></label>
+        <label class="f"><span>Location</span><select class="input" id="j-loc">${["Pune","Bangalore","Goa","Remote"].map(l=>`<option ${j.location===l?"selected":""}>${l}</option>`).join("")}</select></label>
+        <label class="f wide"><span>Skills required <span>comma-separated</span></span><input class="input" id="j-skills" value="${esc((j.skills||[]).join(", "))}" placeholder="Java, Spring Boot, Kafka"></label>
+        <label class="f"><span>Experience from (yrs)</span><input class="input" id="j-emin" type="number" min="0" value="${esc(j.expMin??"")}"></label>
+        <label class="f"><span>Experience to (yrs)</span><input class="input" id="j-emax" type="number" min="0" value="${esc(j.expMax??"")}"></label>
+        <label class="f"><span>CTC from (₹ lakh)</span><input class="input" id="j-cmin" type="number" step="0.5" min="0" value="${esc(j.ctcMin??"")}"></label>
+        <label class="f"><span>CTC to (₹ lakh)</span><input class="input" id="j-cmax" type="number" step="0.5" min="0" value="${esc(j.ctcMax??"")}"></label>
+        <label class="f"><span>Billing rate (USD / hr)</span><input class="input" id="j-bill" type="number" min="0" value="${esc(j.billingRate??"")}" placeholder="0 for bench"></label>
+        <label class="f"><span>Positions</span><input class="input" id="j-pos" type="number" min="1" value="${esc(j.positions??1)}"></label>
+        <label class="f"><span>Needed on project by</span><input class="input" id="j-joinby" type="date" value="${d(j.joinBy)}"></label>
+        <label class="f"><span>Target closure date</span><input class="input" id="j-target" type="date" value="${d(j.targetDate)}"></label>
+        <label class="f"><span>Max notice period (days)</span><input class="input" id="j-maxn" type="number" min="0" value="${esc(j.maxNotice??"")}" placeholder="e.g. 30"></label>
+        <label class="f"><span>Status</span><select class="input" id="j-status">${["Open","On hold","Closed"].map(s=>`<option ${(j.status||"Open")===s?"selected":""}>${s}</option>`).join("")}</select></label>
+        <label class="f"><span>Recruiter</span><input class="input" id="j-rec" value="${esc(j.recruiter||"")}" list="rec-list"><datalist id="rec-list">${[...new Set([...S.jobs.values()].map(x=>x.recruiter).filter(Boolean))].map(r=>`<option value="${esc(r)}">`).join("")}</datalist></label>
+        <label class="f"><span>Hiring manager</span><input class="input" id="j-hm" value="${esc(j.hiringManager||"")}"></label>
+      </div></div>
+      <div class="modal-foot">${m.id?`<button type="button" class="btn danger" data-act="del-job" data-job="${esc(m.id)}" style="margin-right:auto">Delete</button>`:""}<button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit">${m.id?"Save changes":"Create requisition"}</button></div></form></div>`;
+  }
+  if(m.type==="cand"){
+    const jobs=[...S.jobs.values()].filter(j=>j.status!=="Closed");
+    return `<div class="modal-scrim" data-scrim="modal"><form class="modal" id="cand-form" role="dialog" aria-modal="true" aria-labelledby="cand-h">
+      <div class="modal-head"><h2 id="cand-h">Add candidate</h2><button type="button" class="btn ghost" data-act="close-modal" aria-label="Close">✕</button></div>
+      <div class="modal-body">
+        <label class="f"><span>Apply to requisition</span><select class="input" id="c-job" required>${jobs.length?"":`<option value="">Create a requisition first</option>`}${jobs.map(j=>`<option value="${esc(j.id)}" ${m.job===j.id?"selected":""}>${esc(j.title)} · ${esc(j.client)}</option>`).join("")}</select></label>
+        <div class="grid-form">
+          <label class="f"><span>Mobile number</span><input class="input mono" id="c-phone" required inputmode="tel" placeholder="98xxxxxxxx" autocomplete="off"></label>
+          <label class="f"><span>Full name</span><input class="input" id="c-name" required></label>
+          <div class="wide" id="dup-slot"></div>
+          <label class="f"><span>Email</span><input class="input" id="c-email" type="email"></label>
+          <label class="f"><span>Current company</span><input class="input" id="c-company"></label>
+          <label class="f"><span>Total experience (yrs)</span><input class="input" id="c-exp" type="number" step="0.5" min="0" required></label>
+          <label class="f"><span>Notice period (days)</span><input class="input" id="c-notice" type="number" min="0" required placeholder="0 if serving or immediate"></label>
+          <label class="f"><span>Current CTC (₹ lakh)</span><input class="input" id="c-ctc" type="number" step="0.1" min="0"></label>
+          <label class="f"><span>Expected CTC (₹ lakh)</span><input class="input" id="c-ectc" type="number" step="0.1" min="0"></label>
+          <label class="f wide"><span>Skills <span>comma-separated</span></span><input class="input" id="c-skills" placeholder="Java, Spring Boot, AWS"></label>
+          <label class="f"><span>Source</span><select class="input" id="c-source">${SOURCES.map(s=>`<option>${s}</option>`).join("")}</select></label>
+          <label class="f"><span>Consultancy</span><select class="input" id="c-cons"><option value="">—</option>${CONSULTANCIES.map(s=>`<option>${s}</option>`).join("")}</select></label>
+          <label class="f"><span>Current location</span><input class="input" id="c-loc"></label>
+          <label class="check wide"><input type="checkbox" id="c-consent" required><span>Candidate has consented to Meridian storing their data for recruitment (DPDP Act). Data is kept for 3 years, then erased.</span></label>
+        </div>
+      </div>
+      <div class="modal-foot"><button type="button" class="btn" data-act="close-modal">Cancel</button><button class="btn primary" type="submit" id="c-submit">Save candidate</button></div></form></div>`;
+  }
+  return "";
+}
+function findByPhone(p){const k=phoneKey(p);if(k.length<10)return null;return [...S.candidates.values()].find(c=>c.phoneKey===k||phoneKey(c.phone)===k)||null}
+function updateDup(){
+  const slot=$("#dup-slot");if(!slot)return;
+  const ex=findByPhone($("#c-phone")?.value);
+  if(!ex){slot.innerHTML="";$("#c-submit").textContent="Save candidate";return}
+  const apps=appsOfCand(ex.id);
+  slot.innerHTML=`<div class="dup" role="alert"><b>This number belongs to ${esc(ex.name)}, already in the system.</b>
+    ${apps.length?`<div>${apps.map(a=>{const j=S.jobs.get(a.jobId);return `${esc(j?j.title:"?")} · <b>${esc(a.stage)}</b> · recruiter ${esc(j?.recruiter||"—")}`}).join("<br>")}</div>`:"<div>No applications yet.</div>"}
+    <div class="row" style="justify-content:flex-start"><button type="button" class="btn sm primary" style="flex:none" data-act="use-existing" data-cand="${esc(ex.id)}">Add ${esc(ex.name.split(" ")[0])} to this requisition instead</button>
+    <label class="check" style="flex:none"><input type="checkbox" id="c-dup-ok">Different person, save anyway</label></div></div>`;
+}
+
+/* ============================== actions ============================== */
+function hist(stage,reason){const h={stage,at:Date.now(),by:S.uid||"local"};if(reason)h.reason=reason;return h}
+async function moveApp(appId,to,extra={}){
+  const a=S.applications.get(appId);if(!a)return;
+  const reason=extra.reason;
+  const next={...a,stage:to,stageAt:Date.now(),history:[...(a.history||[]),hist(to,reason)],...extra.patch};
+  if(STAGES.includes(to)){delete next.rejectReason;delete next.dropReason}
+  delete next.reason;
+  S.drawer&&(S.drawer.pending=null);
+  await Store.put("applications",next);
+  toast(`${S.candidates.get(a.candidateId)?.name||"Candidate"} moved to ${to}`);
+}
+async function addApplication(candId,jobId,silent){
+  if(appsOfCand(candId).some(a=>a.jobId===jobId)){toast("Already applied to that requisition.");return}
+  const a={id:uid("a"),candidateId:candId,jobId,stage:"Applied",stageAt:Date.now(),createdAt:Date.now(),createdBy:S.uid||"local",history:[hist("Applied")]};
+  await Store.put("applications",a);if(!silent)toast("Added to requisition");return a;
+}
+async function loadSample(){
+  const o=buildSample(Date.now());
+  toast("Loading sample pipeline…");
+  for(const c of COLLS)for(const x of o[c]){
+    if(Store.db){S[c].set(x.id,x)}else S[c].set(x.id,x);
+  }
+  if(Store.db){render();for(const c of COLLS)for(const x of o[c]){const {id,...b}=x;try{await Store.db.collection(c).doc(id).set(b)}catch(e){handleWriteErr(e);return}}}
+  else{saveLocal();render()}
+}
+async function clearSample(){
+  for(const c of COLLS)for(const x of [...S[c].values()])if(x.sample){S[c].delete(x.id);if(Store.db){try{await Store.db.collection(c).doc(x.id).delete()}catch(e){handleWriteErr(e);return}}}
+  if(!Store.db)saveLocal();render();toast("Sample data removed");
+}
+function statusText(j){
+  const apps=appsFor(j.id);
+  const line=s=>{const n=apps.filter(a=>a.stage===s);return n.length?`  ${s}: ${n.length}${s==="Client Round"||s==="Offered"||s==="BGV"||s==="Joined"?" ("+n.map(a=>S.candidates.get(a.candidateId)?.name.split(" ")[0]+(a.offer?.joiningDate&&s!=="Joined"?", joining "+fmtShort(a.offer.joiningDate):"")).join("; ")+")":""}`:null};
+  const joined=apps.filter(a=>a.stage==="Joined").length;
+  return [`Status update: ${j.title} (${j.project}), ${new Date().toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}`,
+    `Positions: ${j.positions} · Filled: ${joined} · Needed by: ${fmtDate(j.joinBy)}`,
+    `Pipeline:`,...STAGES.map(line).filter(Boolean),
+    apps.filter(a=>isOpenStage(a.stage)).length?``:`  No active candidates at the moment.`,
+    `Next step: ${apps.some(a=>a.stage==="Client Round")?"awaiting your feedback on the candidates in client round.":apps.some(a=>a.stage==="Internal Interview")?"internal interviews in progress; shortlisted profiles will be shared for your round.":"sourcing and screening in progress."}`].filter(x=>x!=="").join("\n");
+}
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast("Status update copied. Paste it into your email.")}catch(e){S.modal=null;showCopyFallback(t)}}
+function showCopyFallback(t){const L=$("#layer");const d=document.createElement("div");d.className="modal-scrim";d.innerHTML=`<div class="modal"><div class="modal-head"><h2>Copy this status update</h2><button class="btn ghost" aria-label="Close">✕</button></div><div class="modal-body"><textarea class="input mono" rows="10" style="font-size:12.5px">${esc(t)}</textarea></div></div>`;d.querySelector("button").onclick=()=>d.remove();L.appendChild(d);const ta=d.querySelector("textarea");ta.focus();ta.select()}
+
+document.addEventListener("click",async e=>{
+  const lensBtn=e.target.closest("#lens button");
+  if(lensBtn){S.role=lensBtn.dataset.role;try{localStorage.setItem("mh.role",S.role)}catch(_){}S.drawer&&(S.drawer.pending=null);render();return}
+  const scrim=e.target.closest("[data-scrim]");
+  if(scrim&&e.target===scrim){closeLayer(scrim.dataset.scrim);return}
+  const oc=e.target.closest("[data-open-cand]");
+  if(oc&&!e.target.closest("[data-act]")){S.drawer={type:"cand",id:oc.dataset.openCand,app:oc.dataset.app||null};S.modal=null;renderLayer();return}
+  const oj=e.target.closest("[data-open-job]");
+  if(oj){S.drawer={type:"job",id:oj.dataset.openJob};renderLayer();return}
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const act=b.dataset.act;
+  switch(act){
+    case "close":closeLayer("drawer");break;
+    case "close-modal":closeLayer("modal");break;
+    case "new-job":S.modal={type:"job"};renderLayer();setTimeout(()=>$("#j-title")?.focus());break;
+    case "edit-job":S.modal={type:"job",id:b.dataset.job};renderLayer();break;
+    case "new-cand":if(!S.jobs.size){toast("Create a requisition first.");break}S.modal={type:"cand",job:b.dataset.job||S.f.job||""};renderLayer();setTimeout(()=>$("#c-phone")?.focus());break;
+    case "load-sample":loadSample();break;
+    case "clear-sample":clearSample();break;
+    case "toggle-closed":S.f.showClosed=!S.f.showClosed;render();break;
+    case "move":await moveApp(b.dataset.app,b.dataset.to);break;
+    case "pend":S.drawer.pending={app:b.dataset.app,kind:b.dataset.kind};renderLayer();break;
+    case "unpend":S.drawer.pending=null;renderLayer();break;
+    case "confirm-offer":{const ctc=parseFloat($("#off-ctc").value),dt=$("#off-date").value;if(!ctc||!dt){toast("Enter the offered CTC and joining date.");break}await moveApp(b.dataset.app,"Offered",{patch:{offer:{ctc,joiningDate:new Date(dt+"T09:00:00").getTime()}}});break}
+    case "confirm-reject":{const r=$("#reason").value;await moveApp(b.dataset.app,"Rejected",{reason:r,patch:{rejectReason:r}});break}
+    case "confirm-drop":{const r=$("#reason").value;await moveApp(b.dataset.app,"Dropped Out",{reason:r,patch:{dropReason:r}});break}
+    case "add-app":{const a=await addApplication(b.dataset.cand,$("#add-app-job").value);if(a)S.drawer.app=a.id;renderLayer();break}
+    case "add-note":{const t=$("#note-text").value.trim();if(!t){toast("Write the note first.");break}const app=S.drawer.app&&S.applications.get(S.drawer.app);const n={id:uid("n"),candidateId:b.dataset.cand,text:t,by:S.uid||"local",at:Date.now()};if(app)n.jobId=app.jobId;$("#note-text").value="";await Store.put("notes",n);toast("Note added");break}
+    case "use-existing":{const jobId=$("#c-job").value;if(!jobId){toast("Pick a requisition.");break}const cid=b.dataset.cand;const a=await addApplication(cid,jobId,true);S.modal=null;S.drawer={type:"cand",id:cid,app:a?.id||null};renderLayer();if(a)toast("Existing candidate added to requisition");break}
+    case "copy-status":copyText(statusText(S.jobs.get(b.dataset.job)));break;
+    case "board-for":S.f.job=b.dataset.job;S.drawer=null;location.hash="board";render();break;
+    case "del-job":{const id=b.dataset.job;if(b.dataset.confirm!=="1"){b.dataset.confirm="1";b.textContent=appsFor(id).length?`Delete with ${appsFor(id).length} applications?`:"Confirm delete";break}for(const a of appsFor(id))await Store.del("applications",a.id);await Store.del("jobs",id);S.modal=null;S.drawer=null;renderLayer();toast("Requisition deleted");break}
+    case "del-cand":{const id=b.dataset.cand;if(b.dataset.confirm!=="1"){b.dataset.confirm="1";b.textContent="Erase all of this person's data? Click again to confirm";break}for(const a of appsOfCand(id))await Store.del("applications",a.id);for(const n of [...S.notes.values()].filter(n=>n.candidateId===id))await Store.del("notes",n.id);await Store.del("candidates",id);S.drawer=null;renderLayer();toast("Candidate data erased");break}
+  }
+});
+document.addEventListener("input",e=>{
+  const id=e.target.id;
+  if(id==="f-q"){S.f.q=e.target.value;rerenderKeep(id)}
+  else if(id==="c-q"){S.cq=e.target.value;rerenderKeep(id)}
+  else if(id==="j-q"){S.jq=e.target.value;rerenderKeep(id)}
+  else if(id==="c-phone")updateDup();
+});
+function rerenderKeep(id){const el=document.getElementById(id);const pos=el.selectionStart;render();const n=document.getElementById(id);if(n){n.focus();try{n.setSelectionRange(pos,pos)}catch(_){}}}
+document.addEventListener("change",e=>{
+  const id=e.target.id;
+  if(id==="f-job"){S.f.job=e.target.value;render()}
+  else if(id==="f-rec"){S.f.recruiter=e.target.value;render()}
+  else if(id==="c-source"){const cs=$("#c-cons");if(cs)cs.disabled=e.target.value!=="Consultancy"}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(S.modal)closeLayer("modal");else if(S.drawer)closeLayer("drawer")}});
+document.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const f=e.target;const v=id=>(document.getElementById(id)?.value??"").trim();const num=id=>v(id)===""?null:+v(id);const date=id=>v(id)?new Date(v(id)+"T09:00:00").getTime():null;
+  if(f.id==="job-form"){
+    const prev=S.modal.id?S.jobs.get(S.modal.id):null;
+    const j={...(prev||{}),id:prev?prev.id:uid("j"),title:v("j-title"),client:v("j-client"),project:v("j-project")||(v("j-type")==="Bench"?"Bench pool":""),type:v("j-type"),location:v("j-loc"),skills:splitSkills(v("j-skills")),expMin:num("j-emin"),expMax:num("j-emax"),ctcMin:num("j-cmin"),ctcMax:num("j-cmax"),billingRate:num("j-bill"),positions:num("j-pos")||1,joinBy:date("j-joinby"),targetDate:date("j-target"),maxNotice:num("j-maxn"),status:v("j-status"),recruiter:v("j-rec"),hiringManager:v("j-hm"),createdAt:prev?prev.createdAt:Date.now()};
+    if(!j.title||!j.client){toast("Title and client are required.");return}
+    if(j.expMin!=null&&j.expMax!=null&&j.expMin>j.expMax){toast("Experience 'from' is higher than 'to'.");return}
+    if(j.ctcMin!=null&&j.ctcMax!=null&&j.ctcMin>j.ctcMax){toast("CTC 'from' is higher than 'to'.");return}
+    for(const k in j)if(j[k]===null)delete j[k];
+    S.modal=null;await Store.put("jobs",j);toast(prev?"Requisition saved":"Requisition created");renderLayer();
+  }
+  if(f.id==="cand-form"){
+    const jobId=v("c-job");if(!jobId){toast("Create a requisition first.");return}
+    const ex=findByPhone(v("c-phone"));
+    if(ex&&!$("#c-dup-ok")?.checked){toast("This number already exists. Add the existing candidate, or confirm it's a different person.");$("#dup-slot")?.scrollIntoView({block:"center"});return}
+    if(phoneKey(v("c-phone")).length<10){toast("Enter a 10-digit mobile number.");return}
+    if(!$("#c-consent").checked){toast("Record the candidate's consent before saving.");return}
+    const src=v("c-source");
+    const c={id:uid("c"),name:v("c-name"),phone:v("c-phone"),phoneKey:phoneKey(v("c-phone")),email:v("c-email"),company:v("c-company"),exp:num("c-exp"),noticeDays:num("c-notice")??0,ctc:num("c-ctc"),ectc:num("c-ectc"),skills:splitSkills(v("c-skills")),source:src,location:v("c-loc"),consentAt:Date.now(),createdAt:Date.now(),createdBy:S.uid||"local"};
+    if(src==="Consultancy")c.consultancy=v("c-cons")||CONSULTANCIES[0];
+    for(const k in c)if(c[k]===null||c[k]==="")delete c[k];
+    S.modal=null;
+    await Store.put("candidates",c);
+    const a=await addApplication(c.id,jobId,true);
+    S.drawer={type:"cand",id:c.id,app:a?.id||null};renderLayer();toast(`${c.name} added`);
+  }
+});
+
+/* ============================== sample data ============================== */
+// SAMPLE-START
+function buildSample(now){
+  const D=86400000;
+  const jobs=[
+    ["sj1","Senior Java Developer","Harlow Bank (UK)","Payments Modernisation","Project","Pune",["Java","Spring Boot","Microservices","Kafka"],6,9,18,26,42,3,38,30,30,"Anita Desai","Rahul Menon"],
+    ["sj2","React Frontend Engineer","Northwind Retail (US)","Store Ops Portal","Project","Bangalore",["React","TypeScript","Redux"],3,6,10,16,30,2,45,45,24,"Farhan Shaikh","Kavitha Rao"],
+    ["sj3","QA Automation Engineer","Cargoline Logistics (US)","Fleet Tracking","Project","Goa",["Selenium","Java","RestAssured"],4,7,9,14,25,2,34,30,35,"Meera Naik","Sandeep Kulkarni"],
+    ["sj4","DevOps Engineer","Harlow Bank (UK)","Cloud Migration","Project","Pune",["AWS","Terraform","Kubernetes"],5,8,16,24,45,1,40,60,20,"Joel Fernandes","Rahul Menon"],
+    ["sj5",".NET Developer","Bench","Bench pool","Bench","Pune",["C#",".NET Core","SQL Server"],3,5,8,13,0,2,null,60,15,"Anita Desai",""],
+    ["sj6","Business Analyst","Northwind Retail (US)","Loyalty Platform","Project","Bangalore",["Business Analysis","SQL","Agile"],5,8,14,20,38,1,-12,45,58,"Meera Naik","Kavitha Rao"]
+  ].map(r=>({id:r[0],title:r[1],client:r[2],project:r[3],type:r[4],location:r[5],skills:r[6],expMin:r[7],expMax:r[8],ctcMin:r[9],ctcMax:r[10],billingRate:r[11],positions:r[12],...(r[13]!==null?{joinBy:now+r[13]*D,targetDate:now+(r[13]-7)*D}:{}),maxNotice:r[14],createdAt:now-r[15]*D,status:r[0]==="sj6"?"Closed":"Open",recruiter:r[16],hiringManager:r[17],sample:true}));
+  const C=[
+    ["Aarav Kulkarni","9822014501","Infosys",7,30,"Naukri",["Java","Spring Boot","Kafka","AWS"],19,24],
+    ["Sneha Patil","9890233402","TCS",6.5,90,"LinkedIn",["Java","Microservices","Spring Boot"],17,23],
+    ["Rohit Sharma","9765034403","Persistent",8,60,"Consultancy",["Java","Spring Boot","Kafka"],22,28,"TalentBridge Search"],
+    ["Priyanka Iyer","9845045604","Wipro",4,30,"Referral",["React","TypeScript","Redux","Jest"],11,15],
+    ["Karthik Reddy","9880156705","Accenture",5,15,"Naukri",["React","JavaScript","Next.js"],12,16],
+    ["Fatima Khan","9900267806","Mindtree",3.5,60,"LinkedIn",["React","TypeScript"],9,13],
+    ["Siddharth Naik","9823378907","Cognizant",5,30,"Direct",["Selenium","Java","TestNG"],9.5,13],
+    ["Ananya Gaonkar","9765489008","Capgemini",4.5,0,"Referral",["Selenium","RestAssured","Java"],8,11.5],
+    ["Vikram Joshi","9822590109","HCL",6,45,"Consultancy",["AWS","Terraform","Kubernetes","Jenkins"],18,24,"Apex Staffing"],
+    ["Neha Deshpande","9850601210","Tech Mahindra",4,30,"Naukri",["C#",".NET Core","SQL Server"],8.5,12],
+    ["Arjun Menon","9945712311","LTIMindtree",3,15,"LinkedIn",["C#",".NET Core","Azure"],7.5,11],
+    ["Pooja Shetty","9886823412","Deloitte",6,30,"Referral",["Business Analysis","SQL","Agile","JIRA"],15,19],
+    ["Manish Agarwal","9811934513","Genpact",7,60,"Consultancy",["Business Analysis","Agile"],16,21,"Kaveri HR Partners"],
+    ["Divya Pillai","9846045614","IBM",7.5,30,"Naukri",["Java","Spring Boot","Microservices"],20,25],
+    ["Harsh Vardhan","9958156715","Zensar",5.5,90,"Naukri",["React","Node.js","TypeScript"],13,18],
+    ["Lakshmi Narayan","9884267816","Mphasis",6,30,"Consultancy",["Selenium","Java","Cucumber"],11,14.5,"TalentBridge Search"],
+    ["Omkar Sawant","9822378917","Synechron",5,30,"LinkedIn",["Java","Spring Boot","AWS"],15,20],
+    ["Rhea D'Souza","9763489018","Freelance",4,0,"Direct",["Business Analysis","SQL"],10,14]
+  ];
+  const candidates=C.map((r,i)=>({id:"sc"+(i+1),name:r[0],phone:r[1],phoneKey:r[1],email:r[0].toLowerCase().replace(/[^a-z ]/g,"").replace(" ",".")+"@example.com",company:r[2],exp:r[3],noticeDays:r[4],source:r[5],skills:r[6],ctc:r[7],ectc:r[8],...(r[9]?{consultancy:r[9]}:{}),location:["Pune","Bangalore","Goa","Mumbai"][i%4],consentAt:now-(30-i)*D,createdAt:now-(30-i)*D,createdBy:"sample",sample:true}));
+  const recOf={sj1:"Anita",sj2:"Farhan",sj3:"Meera",sj4:"Joel",sj5:"Anita",sj6:"Meera"};
+  // [cand#, job, final stage, startDaysAgo, extra]
+  const A=[
+    [1,"sj1","Client Round",14],[2,"sj1","Internal Interview",9],[3,"sj1","Offered",24,{offer:[27,12]}],[14,"sj1","Screened",4],[17,"sj1","Applied",1],
+    [4,"sj2","BGV",20,{offer:[15,18]}],[5,"sj2","Client Round",11],[6,"sj2","Rejected",13,{last:"Internal Interview",reason:"Failed internal interview"}],[15,"sj2","Screened",6],
+    [7,"sj3","Offered",19,{offer:[12.5,21]}],[8,"sj3","Joined",28,{offer:[11,-3]}],[16,"sj3","Dropped Out",26,{last:"Offered",reason:"Counter-offer from current employer",offer:[14,-5]}],
+    [9,"sj4","Internal Interview",8],[17,"sj4","Client Round",10],
+    [10,"sj5","Joined",33,{offer:[11.5,-6]}],[18,"sj5","Screened",3],
+    [12,"sj6","Joined",50,{offer:[18.5,-14]}],[13,"sj6","Dropped Out",48,{last:"Offered",reason:"Accepted another offer",offer:[20,-10]}],[18,"sj6","Rejected",40,{last:"Client Round",reason:"Client rejected"}],
+    [2,"sj4","Rejected",15,{last:"Screened",reason:"Skills mismatch"}],[14,"sj6","Rejected",44,{last:"Screened",reason:"Experience below band"}],
+    [5,"sj1","Rejected",12,{last:"Applied",reason:"Skills mismatch"}],[3,"sj4","Dropped Out",30,{last:"Client Round",reason:"Accepted another offer"}],[11,"sj5","Joined",38,{offer:[10,-4]}]
+  ];
+  const applications=A.map((r,i)=>{
+    const [ci,jid,final,start,x={}]=r;const by=recOf[jid]+" (sample)";
+    const path=STAGES_S.slice(0,STAGES_S.indexOf(x.last||final)+1);
+    const steps=path.length+(x.last?1:0);const gap=start/Math.max(1,steps);
+    const history=path.map((s,k)=>({stage:s,at:now-(start-k*gap)*D,byLabel:by,by:"sample"}));
+    if(x.last)history.push({stage:final,at:now-(start-path.length*gap)*D,byLabel:by,by:"sample",reason:x.reason});
+    const a={id:"sa"+(i+1),candidateId:"sc"+ci,jobId:jid,stage:final,stageAt:history[history.length-1].at,createdAt:history[0].at,createdBy:"sample",history,sample:true};
+    if(x.offer)a.offer={ctc:x.offer[0],joiningDate:now+x.offer[1]*D};
+    if(final==="Rejected")a.rejectReason=x.reason;if(final==="Dropped Out")a.dropReason=x.reason;
+    return a;
+  });
+  const notes=[
+    ["sc1","sj1","Strong on Kafka and event-driven design. Client round with Harlow scheduled Thursday 4 pm IST.","Anita (sample)",2],
+    ["sc2","sj1","90-day notice, can't buy out. Flagged against the 30-day cap; keeping warm for the next phase.","Anita (sample)",5],
+    ["sc3","sj1","Holding an offer from another services firm at 27L. Asked for decision by Friday.","Anita (sample)",1],
+    ["sc4","sj2","BGV initiated with the vendor. Previous employer verification pending.","Farhan (sample)",3],
+    ["sc16","sj3","Accepted counter-offer from Mphasis two days before joining.","Meera (sample)",5],
+    ["sc17","sj4","Applied for Java role too. Client round for DevOps first, as discussed with Joel.","Joel (sample)",6]
+  ].map((n,i)=>({id:"sn"+(i+1),candidateId:n[0],jobId:n[1],text:n[2],by:"sample",byLabel:n[3],at:now-n[4]*D,sample:true}));
+  return {jobs,candidates,applications,notes};
+}
+const STAGES_S=["Applied","Screened","Internal Interview","Client Round","Offered","BGV","Joined"];
+// SAMPLE-END
+
+/* ============================== start ============================== */
+boot();
+</script>
+
+</body></html>
